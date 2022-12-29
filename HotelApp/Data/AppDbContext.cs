@@ -24,8 +24,8 @@ namespace HotelApp.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //change the database name before submitting
-                optionsBuilder.UseSqlServer(@"Server=GM\MSSQLSERVER01;Database=HotelApp;Trusted_Connection=True;TrustServerCertificate=true;");
+                //change the database name before submitting                
+                optionsBuilder.UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Database=HotelAppDb;Trusted_Connection=True;TrustServerCertificate=true;");
             }
         }
     }
