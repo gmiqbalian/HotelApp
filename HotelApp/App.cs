@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Figgle;
 using Spectre.Console;
-
+using System.Linq.Expressions;
 
 namespace HotelApp
 {
@@ -16,79 +16,71 @@ namespace HotelApp
         {
             var builder = new Build();
             var dbContext = builder.BuildApp();
-
-            while (true)
-            {                
+                        
+            while (true)    //add go back to main menu
+            {
                 Menu.ShowMainMenu();
                 var sel = Menu.GetSelection();
                 if (sel == 0) return;
-
+               
                 if (sel == 1)
                 {
                     Menu.ShowBookingMenu();
                     var bookingSel = Menu.GetSelection();
-                    var action = new BookingController(dbContext);
+                    var bookingController = new BookingController(dbContext);
 
                     if (bookingSel == 1)
-                        action.CreateBooking();
+                        bookingController.Create();
 
                     else if (bookingSel == 2)
-                        action.ShowAllBookings();
+                        bookingController.ShowAll();
 
                     else if (bookingSel == 3)
-                        action.EditBooking();
+                        bookingController.Update();
 
                     else if (bookingSel == 4)
-                        action.DeleteBooking();
+                        bookingController.Delete();
 
                     else if (bookingSel == 5)
-                        action.SearchBooking();
+                        bookingController.SearchBooking();
 
-                    else if (bookingSel == 5)
-                        return;
                 }
                 else if (sel == 2)
                 {
                     Menu.ShowRoomMenu();
                     var roomSel = Menu.GetSelection();
-                    var action = new RoomController(dbContext);
+                    var roomController = new RoomController(dbContext);
 
                     if (roomSel == 1)
-                        action.CreateRoom();
+                        roomController.Create();
 
                     else if (roomSel == 2)
-                        action.ShowAllRooms();
+                        roomController.ShowAll();
 
                     else if (roomSel == 3)
-                        action.EditRoom();
+                        roomController.Update();
 
                     else if (roomSel == 4)
-                        action.DeleteRoom();
-
-                    else if (roomSel == 5)
-                        return;
+                        roomController.Delete();
                 }
                 else if (sel == 3)
                 {
                     Menu.ShowGuestMenu();
 
                     var guestSel = Menu.GetSelection();
-                    var action = new GuestController(dbContext);
+                    var guestController = new GuestController(dbContext);
 
                     if (guestSel == 1)
-                        action.CreateGuest();
+                        guestController.Create();
 
                     else if (guestSel == 2)
-                        action.ShowAllGuests();
+                        guestController.ShowAll();
 
                     else if (guestSel == 3)
-                        action.EditGuest();
+                        guestController.Update();
 
                     else if (guestSel == 4)
-                        action.DeleteGuest();
-
-                    else if (guestSel == 5)
-                        return;
+                        guestController.Delete();
                 }
             }
         }

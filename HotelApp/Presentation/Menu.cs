@@ -33,8 +33,7 @@ namespace HotelApp.Presentation
             Console.WriteLine("3. Edit current booking");
             Console.WriteLine("4. Delete a booking");
             Console.WriteLine("5. Search bookings");
-            Console.WriteLine("6. Go to Main Menu");
-
+            
             Console.Write("\nChoose an option: ");
         }
         public static void ShowRoomMenu()
@@ -44,8 +43,7 @@ namespace HotelApp.Presentation
             Console.WriteLine("2. Show current rooms");
             Console.WriteLine("3. Edit a room");
             Console.WriteLine("4. Delete a room");
-            Console.WriteLine("5. Go to Main Menu");
-
+            
             Console.Write("\nChoose an option: ");
         }
         public static void ShowGuestMenu()
@@ -55,8 +53,7 @@ namespace HotelApp.Presentation
             Console.WriteLine("2. Show current guests");
             Console.WriteLine("3. Edit a current guest");
             Console.WriteLine("4. Delete a guest");
-            Console.WriteLine("5. Go to Main Menu");
-
+            
             Console.Write("\nChoose an option: ");
         }
         public static int GetSelection()

@@ -1,106 +1,146 @@
-﻿using HotelApp.Data;
+﻿using ConsoleTables;
+using HotelApp.Data;
 using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
+using Spectre.Console;
 
 namespace HotelApp.Controllers
 {
     public class BookingController
     {
         private AppDbContext dbContext { get; set; }
+        private readonly GuestController _guestController;
+        private readonly RoomController _roomController;
         private Booking newBooking { get; set; }
-        private List<Room> availableRooms { get; set; }
-        private int numberOfDays { get; set; }        
+        private int numberOfDays { get; set; }
         public BookingController(AppDbContext context)
         {
             dbContext = context;
-            newBooking = new Booking();
-            availableRooms = new List<Room>();
+            newBooking = new Booking();            
+            _guestController = new GuestController(dbContext);
+            _roomController = new RoomController(dbContext);
         }
-        public void CreateBooking()
+        public void Create()
         {
             Console.Clear();
 
             newBooking.BookingDate = DateTime.Now;
             GetNumberOfDays();
             GetCheckInDate();
-            GetCheckOutDate();
-            CheckAvailableRooms();
-            ShowAvailableRooms();
+            GetCheckOutDate();            
+            ShowCurrentBooking();
+            _roomController.CheckAvailableRooms(newBooking);
+            _roomController.ShowAvailableRooms();
             ChooseRoom();
             AskExtraBed();
-            ShowExistingGuests();
+            _guestController.ShowAll();
             ChooseGuest();
             SaveBooking();
         }
-        public void ShowAllBookings()
+        public void ShowAll()
         {
-            var bookingsList = dbContext.Bookings.Include(b => b.Room).Include(b => b.Guest);
-
-            Console.WriteLine("\nId\tBookingDate\tCheckInDate\tCheckOutDate\tGuest\t\tRoom Number\n");
+            var bookingsList = dbContext.Bookings.
+                Include(b => b.Room).
+                Include(b => b.Guest);
             
-            foreach (var booking in bookingsList)
-                Console.WriteLine($"{booking.Id}" +
-                    $"\t{booking.BookingDate.ToShortDateString()}" +
-                    $"\t{booking.CheckInDate.ToShortDateString()}" +
-                    $"\t{booking.CheckOutDate.ToShortDateString()}" +
-                    $"\t{booking.Guest.Name}" +
-                    $"\t{booking.Room.RoomId}");
+            if(bookingsList == null)
+            {
+                Console.WriteLine("There is no booking to show.");
+                Console.ReadLine();
+            }
 
+            var table = new ConsoleTable("Id", "BookingDate", "CheckInDate", "CheckOutDate", "Guest", "Room Number");
+
+            foreach (var booking in bookingsList)
+                table.AddRow(booking.Id,
+                    booking.BookingDate.ToShortDateString(),
+                    booking.CheckInDate.ToShortDateString(),
+                    booking.CheckOutDate.ToShortDateString(),
+                    booking.Guest.Name,
+                    booking.Room.RoomId);
+
+            table.Write();
             System.Threading.Thread.Sleep(5000);
         }
-        public void EditBooking()
+        public void Update()
         {
-            ShowAllBookings();
-
-            newBooking.BookingDate = DateTime.Now;
+            ShowAll();
 
             Console.WriteLine("\nEnter booking id to edit.");
             int.TryParse(Console.ReadLine(), out var bookingIdToEdit);
             newBooking = dbContext.Bookings.First(b => b.Id == bookingIdToEdit);
 
+            newBooking.BookingDate = DateTime.Now;
+
             GetNumberOfDays();
             GetCheckInDate();
             GetCheckOutDate();
-            CheckAvailableRooms();
-            ShowAvailableRooms();
+            ShowCurrentBooking();
+            _roomController.CheckAvailableRooms(newBooking);
+            _roomController.ShowAvailableRooms();
             ChooseRoom();
-            ShowExistingGuests();
+            _guestController.ShowAll();
             ChooseGuest();
 
             dbContext.SaveChanges();
         }
-        public void DeleteBooking()
+        public void Delete()
         {
-            ShowAllBookings();
+            ShowAll();
             Console.WriteLine("\nEnter booking id to delete.");
             int.TryParse(Console.ReadLine(), out var bookingIdToEdit);
-
+                        
             var bookingToDelete = dbContext.Bookings.First(b => b.Id == bookingIdToEdit);
+            
+            if(bookingToDelete != null)
+            {
+                dbContext.Bookings.Remove(bookingToDelete);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Booking is delete successfully!");
+            }
 
-            dbContext.Bookings.Remove(bookingToDelete);
-
+            
+            Console.ForegroundColor = ConsoleColor.Gray;
             dbContext.SaveChanges();
         }
         public void SearchBooking()
         {
+            
             Console.Write("\nEnter FROM date (Format: YYYY-MM-DD): ");
             DateTime.TryParse(Console.ReadLine(), out var fromDate);
 
-            Console.Write("\nEnter TO date (Format: YYYY-MM-DD): ");
-            DateTime.TryParse(Console.ReadLine(), out var toDate);
+            var toDate = new DateTime(2000, 01, 01);
+
+            while(toDate < fromDate)
+            {
+                Console.Write("\nEnter TO date (Format: YYYY-MM-DD): ");
+                DateTime.TryParse(Console.ReadLine(), out toDate);
+            }
 
             var searchedBookingList = dbContext.Bookings.
                 Include(b => b.Room).
                 Include(b => b.Guest).
                 Where(b => b.CheckInDate >= fromDate && b.CheckOutDate <= toDate).
+                OrderBy(b=> b.CheckInDate).                
                 ToList();
 
-            Console.WriteLine("\nId\tCheckInDate\tCheckOutDate\tGuest\t\tRoom Number");
+            var table = new ConsoleTable(
+                "Id", 
+                "BookingDate", 
+                "CheckInDate", 
+                "CheckOutDate", 
+                "Guest", 
+                "Room Number");
+
             foreach (var booking in searchedBookingList)
-                Console.WriteLine($"{booking.Id}\t{booking.CheckInDate.ToShortDateString()}" +
-                    $"\t{booking.CheckOutDate.ToShortDateString()}" +
-                    $"\t{booking.Guest.Name}" +
-                    $"\t{booking.Room.RoomId}");
+                table.AddRow(booking.Id,
+                    booking.BookingDate.ToShortDateString(),
+                    booking.CheckInDate.ToShortDateString(),
+                    booking.CheckOutDate.ToShortDateString(),
+                    booking.Guest.Name,
+                    booking.Room.RoomId);
+
+            table.Write();
 
             Console.WriteLine("\n\nPress any key to continue...");
             Console.ReadLine();
@@ -113,7 +153,7 @@ namespace HotelApp.Controllers
         }
         private void GetCheckInDate()
         {
-            newBooking.CheckInDate = new DateTime(2000, 01, 01); //edit this            
+            newBooking.CheckInDate = new DateTime(2000, 01, 01);           
             while (newBooking.CheckInDate < DateTime.Now)
             {
                 Console.WriteLine("\nEnter the check in date (Format: yyyy-mm-dd)");
@@ -126,57 +166,24 @@ namespace HotelApp.Controllers
                 newBooking.CheckOutDate = newBooking.CheckInDate;
             else if (numberOfDays > 1)
                 newBooking.CheckOutDate = newBooking.CheckInDate.AddDays(numberOfDays);
-        }
-        private void CheckAvailableRooms()
-        {
-            var newBookingDates = new List<DateTime>();
-            for (var i = newBooking.CheckInDate; i <= newBooking.CheckOutDate; i = i.AddDays(1))
-                newBookingDates.Add(i);
-
-            foreach (var room in dbContext.Rooms.ToList())
-            {
-                bool roomIsFree = true;
-                foreach (var booking in dbContext.Bookings.Include(b => b.Room).Where(b => b.Room == room))
-                {
-                    for (var i = booking.CheckInDate; i < booking.CheckOutDate; i = i.AddDays(1))
-                    {
-                        if (newBookingDates.Contains(i))
-                            roomIsFree = false;
-                    }
-                    if (!roomIsFree)
-                        break;
-                }
-                if (roomIsFree)
-                    availableRooms.Add(room);
-            }
-        }
-        private void ShowAvailableRooms()
+        }        
+        private void ShowCurrentBooking()
         {
             Console.Clear();
-            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ForegroundColor = ConsoleColor.Yellow;
+
             Console.WriteLine("Your booking details");
-            Console.WriteLine("\nStart\t\tEnd\t\tNo. of days");
-            Console.WriteLine($"{newBooking.CheckInDate.ToShortDateString()}\t{newBooking.CheckOutDate.ToShortDateString()}\t{numberOfDays}");
+            
+            var bookingTable = new ConsoleTable("Start", "End", "No.of days");
+            
+            bookingTable.AddRow(newBooking.CheckInDate.ToShortDateString(),
+                newBooking.CheckOutDate.ToShortDateString(),
+                numberOfDays);
+            
+            bookingTable.Write();
+            Console.ForegroundColor = ConsoleColor.Gray;
 
-            if (availableRooms.Count() < 1)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\n\nSorry! All rooms are booked for these dates. Please try another date");
 
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("Press any key to continue");
-                Console.ReadLine();
-                return;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("\n\n\nFollowing rooms are available for booking");
-                Console.WriteLine("\nRoom\tType\tSize\tBeds");
-
-                foreach (var room in availableRooms.OrderBy(r => r.RoomId))
-                    Console.WriteLine($"{room.RoomId}\t{room.Type}\t{room.Size}\t{room.Beds}");
-            }
         }
         private void ChooseRoom()
         {
@@ -192,7 +199,7 @@ namespace HotelApp.Controllers
             if (newBooking.Room.Type == "Double")
             {
                 Console.WriteLine("\nWould you like to add extra bed? (Y/N)");
-                var sel = Console.ReadLine().ToLower();
+                var sel = Console.ReadLine().Trim().ToLower();
 
                 if (sel == "y" && newBooking.Room.Size <= 45)
                 {
@@ -207,16 +214,7 @@ namespace HotelApp.Controllers
                 }
                 else return;
             }
-        }
-        private void ShowExistingGuests()
-        {
-            Console.Clear();
-            
-
-            Console.WriteLine("Id\tFull Name\tAddress\t\tPhone\n");
-            foreach (var guest in dbContext.Guests.ToList())
-                Console.WriteLine($"{guest.Id}\t{guest.Name}\t{guest.Address}\t\t{guest.Phone}");
-        }
+        }        
         private void ChooseGuest()
         {
             Console.WriteLine("\nEnter guest id who is booking or write \"NEW\" to add new guest");
@@ -225,10 +223,9 @@ namespace HotelApp.Controllers
             int guestId;
 
             if (sel.ToLower() == "new")
-            {
-                var guestController = new GuestController(dbContext);
-                guestController.CreateGuest();
-                ShowExistingGuests();
+            {                
+                _guestController.Create();
+                _guestController.ShowAll();
                 Console.WriteLine("\nEnter guest id who is booking");
                 int.TryParse(Console.ReadLine(), out guestId);
             }
@@ -248,8 +245,14 @@ namespace HotelApp.Controllers
             Console.Clear();
             Console.WriteLine("Booking successful!");
             Console.WriteLine("=============================");
-            Console.WriteLine("Start\t\tEnd\t\tNo. of days");
-            Console.WriteLine($"{newBooking.CheckInDate.ToShortDateString()}\t{newBooking.CheckOutDate.ToShortDateString()}\t{numberOfDays}");
+
+            var table = new ConsoleTable("Start", "End", "No. of Days");
+            table.AddRow(newBooking.CheckInDate.ToShortDateString(),
+                newBooking.CheckOutDate.ToShortDateString(),
+                numberOfDays);
+            
+            
+            table.Write();
             Console.ForegroundColor = ConsoleColor.Gray;
 
             Console.WriteLine("\nPress any key to continue...");

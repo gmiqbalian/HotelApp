@@ -1,4 +1,5 @@
-﻿using HotelApp.Data;
+﻿using ConsoleTables;
+using HotelApp.Data;
 using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,7 +17,7 @@ namespace HotelApp.Controllers
         {
             dbContext = context;
         }
-        public void CreateGuest()
+        public void Create()
         {
             Console.Clear();
 
@@ -42,23 +43,40 @@ namespace HotelApp.Controllers
                 Address = newGuestAddress
             });
 
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\nThe Guest is added succesfully.");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadLine();
+
             dbContext.SaveChanges();
         }
-        public void ShowAllGuests()
+        public void ShowAll()
         {
-            Console.WriteLine("\nId\tName\t\tAge\tPhone\t\tAddress");
+            Console.Clear();
+
+            var table = new ConsoleTable("Id", "Name", "Age", "Phone", "Address");
+            
             foreach (var guest in dbContext.Guests.ToList())
-                Console.WriteLine($"{guest.Id}\t{guest.Name}\t{guest.Age}\t{guest.Phone}\t{guest.Address}");
+                table.AddRow(guest.Id, 
+                    guest.Name, 
+                    guest.Age, 
+                    guest.Phone, 
+                    guest.Address);
+
+            table.Write();
             System.Threading.Thread.Sleep(5000);
         }
-        public void EditGuest()
+        public void Update()
         {
-            ShowAllGuests();
+            ShowAll();
 
             Console.WriteLine("\nEnter Guest Id to EDIT: ");
             int.TryParse(Console.ReadLine(), out var guestIdToEdit);
 
-            var guestToEdit = dbContext.Guests.FirstOrDefault(g => g.Id == guestIdToEdit);
+            var guestToEdit = dbContext.Guests.
+                FirstOrDefault(g => g.Id == guestIdToEdit);
 
             Console.Write("\nEnter Guest Name: ");
             guestToEdit.Name = Console.ReadLine();
@@ -74,24 +92,40 @@ namespace HotelApp.Controllers
 
             dbContext.SaveChanges();
         }
-        public void DeleteGuest()
+        public void Delete()
         {
-            ShowAllGuests();
+            ShowAll();
 
             Console.WriteLine("\nEnter guest Id to DELETE: ");
             int.TryParse(Console.ReadLine(), out var guestIdToDelete);
 
-            var guestToDelete = dbContext.Guests.First(r => r.Id == guestIdToDelete);
+            var guestToDelete = dbContext.Guests.
+                First(r => r.Id == guestIdToDelete);
 
-            if (dbContext.Bookings.Include(b => b.Guest).Any(b => b.Guest.Id == guestIdToDelete))
+            if (HasBookig(guestToDelete))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\nThis guest can not be deleted because it has an associated booking.");
+            }
             else
                 dbContext.Guests.Remove(guestToDelete);
-
+            
             dbContext.SaveChanges();
 
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"\nThe Guest with id: {guestToDelete.Id} is deleted.");
+
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadLine();
+        }
+        private bool HasBookig(Guest guestToDelete)
+        {
+            if (dbContext.Bookings.
+                Include(b => b.Guest).
+                Any(b => b.Guest.Id == guestToDelete.Id))
+                return true;
+            return false;
         }
     }
 }
