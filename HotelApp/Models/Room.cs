@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 namespace HotelApp.Models
 {
     public class Room 
-    {        
+    {
         public int RoomId { get; set; }
-        public string Type { get; set; } = null!;
-        public int Beds { get; set; }
-        public float Size { get; set; } //in square meters (m2)
+        public int? ExtraBed { get; set; }
+        public float Size { get; set; } //in square meters (m2)        
+        public string RoomTypeId { get; set; }
+        public RoomType Type { get; set; } = null!;
         public List<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }

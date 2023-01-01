@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace HotelApp.Models
 {
-    public class Guest 
+    public class Guest
     {
-        public int Id { get; set; }
+        public int GuestId { get; set; }
         [Required]
         [MaxLength(100)]
         public string Name { get; set; } = null!;
         public int Age { get; set; }
         public string? Phone { get; set; }
-        public string? Address { get; set; }
+        public string? Street { get; set; }
+        public string? City { get; set; }
+        public int? PostalCode { get; set; }
         public List<Booking> Bookings { get; set; } = new List<Booking>();
 
     }

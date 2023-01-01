@@ -8,18 +8,40 @@ namespace HotelApp.Data
         public void MigrateAndSeed(AppDbContext dbContext)
         {
             dbContext.Database.Migrate();
+            SeedRoomTypes(dbContext);
             SeedRooms(dbContext);
             SeedGuests(dbContext);
             dbContext.SaveChanges();
         }
-        public void SeedRooms(AppDbContext dbContext)
+        public void SeedRoomTypes(AppDbContext dbContext)
         {
+            if (!dbContext.RoomTypes.Any(rt => rt.Id == "Single"))
+            {
+                dbContext.RoomTypes.Add(new RoomType
+                {
+                    Id = "Single",
+                    Bed = 1
+                });
+            }
+            if (!dbContext.RoomTypes.Any(rt => rt.Id == "Double"))
+            {
+                dbContext.RoomTypes.Add(new RoomType
+                {
+                    Id = "Double",
+                    Bed = 2
+                });
+            }
+
+            dbContext.SaveChanges();
+        }
+        public void SeedRooms(AppDbContext dbContext)
+        {           
+
             if (!dbContext.Rooms.Any(r => r.RoomId == 1))
             {
                 dbContext.Rooms.Add(new Room
                 {
-                    Type = "Single",
-                    Beds = 1,
+                    Type = dbContext.RoomTypes.First(rt=> rt.Id == "Single"),
                     Size = 37
                 });
             }
@@ -27,17 +49,15 @@ namespace HotelApp.Data
             {
                 dbContext.Rooms.Add(new Room
                 {
-                    Type = "Single",
-                    Beds = 1,
-                    Size = 37
+                    Type = dbContext.RoomTypes.First(rt => rt.Id == "Single"),
+                    Size = 40
                 });
             }
             if (!dbContext.Rooms.Any(r => r.RoomId == 3))
             {
                 dbContext.Rooms.Add(new Room
                 {
-                    Type = "Double",
-                    Beds = 2,
+                    Type = dbContext.RoomTypes.First(rt => rt.Id == "Double"),
                     Size = 45
                 });
             }
@@ -45,52 +65,59 @@ namespace HotelApp.Data
             {
                 dbContext.Rooms.Add(new Room
                 {
-                    Type = "Double",
-                    Beds = 2,
+                    Type = dbContext.RoomTypes.First(rt => rt.Id == "Double"),
                     Size = 60
                 });
             }
         }
         public void SeedGuests(AppDbContext dbContext)
         {
-            if (!dbContext.Guests.Any(g => g.Id == 1))
+            if (!dbContext.Guests.Any(g => g.GuestId == 1))
             {
                 dbContext.Guests.Add(new Guest
                 {
                     Name = "Steve Smith",
                     Age = 30,
                     Phone = "123-456-7894",
-                    Address = "Test Road 1"
-                }); ;
+                    Street = "Test Road 1",
+                    City = "Rockley",
+                    PostalCode = 12345
+                });
             }
-            if (!dbContext.Guests.Any(g => g.Id == 2))
+            if (!dbContext.Guests.Any(g => g.GuestId == 2))
             {
                 dbContext.Guests.Add(new Guest
                 {
                     Name = "Glen Mcgrath",
                     Age = 20,
                     Phone = "128-656-6891",
-                    Address = "Demo Road 7"
+                    Street = "Demo Road 7",
+                    City = "Chatford",
+                    PostalCode = 67890
                 });
             }
-            if (!dbContext.Guests.Any(g => g.Id == 3))
+            if (!dbContext.Guests.Any(g => g.GuestId == 3))
             {
                 dbContext.Guests.Add(new Guest
                 {
                     Name = "Adam Gilchrist",
                     Age = 20,
                     Phone = "928-657-3002",
-                    Address = "Main Boulv. 11"
+                    Street = "Main Boulv. 11",
+                    City = "Transview",
+                    PostalCode = 14725
                 });
             }
-            if (!dbContext.Guests.Any(g => g.Id == 4))
+            if (!dbContext.Guests.Any(g => g.GuestId == 4))
             {
                 dbContext.Guests.Add(new Guest
                 {
                     Name = "Ricky Ponting",
                     Age = 20,
                     Phone = "628-676-1009",
-                    Address = "Super Street 89"
+                    Street = "Super Street 89",
+                    City = "Elside",
+                    PostalCode = 25836
                 });
             }
         }
