@@ -1,4 +1,5 @@
-﻿using HotelApp.Data;
+﻿using ClassLibrary;
+using HotelApp.Data;
 using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -28,22 +29,22 @@ namespace HotelApp.System
         {
 
             Console.Write("\nEnter Guest Name: ");
-            guest.Name = Console.ReadLine();
+            guest.Name = Input.GetString();
 
             Console.Write("\nEnter Guest Age: ");
-            guest.Age = Convert.ToInt32(Console.ReadLine());
+            guest.Age = Input.GetInt();
 
             Console.Write("\nEnter Guest phone number: ");
-            guest.Phone = Console.ReadLine();
+            guest.Phone = Input.GetString();
 
             Console.Write("\nEnter Guest street address: ");
             guest.Street = Console.ReadLine();
 
             Console.Write("\nEnter Guest City: ");
-            guest.City = Console.ReadLine();
+            guest.City = Input.GetString();
 
             Console.Write("\nEnter Guest postal code: ");
-            guest.PostalCode = Convert.ToInt32(Console.ReadLine());
+            guest.PostalCode = Input.GetInt();
 
             return guest;
         }

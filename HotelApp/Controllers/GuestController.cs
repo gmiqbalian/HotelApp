@@ -1,4 +1,5 @@
-﻿using ConsoleTables;
+﻿using ClassLibrary;
+using ConsoleTables;
 using HotelApp.Data;
 using HotelApp.Models;
 using HotelApp.System;
@@ -28,9 +29,7 @@ namespace HotelApp.Controllers
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"\nThe Guest is added succesfully.");
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadLine();
+            Input.PressAnyKey();
 
             dbContext.SaveChanges();
         }
@@ -48,15 +47,14 @@ namespace HotelApp.Controllers
                     guest.Street+ " " +guest.City + " " + guest.PostalCode);
 
             table.Write();
-            Console.ReadLine();
-            //System.Threading.Thread.Sleep(5000);
+            Input.PressAnyKey();
         }
         public void Update()
         {
             ShowAll();
 
             Console.Write("\nEnter Guest Id to EDIT: ");
-            int.TryParse(Console.ReadLine(), out var guestIdToEdit);
+            var guestIdToEdit = Input.GetInt();
 
             var guestToEdit = dbContext.Guests.
                 FirstOrDefault(g => g.GuestId == guestIdToEdit);
@@ -70,7 +68,7 @@ namespace HotelApp.Controllers
             ShowAll();
 
             Console.Write("\nEnter guest Id to DELETE: ");
-            int.TryParse(Console.ReadLine(), out var guestIdToDelete);
+            var guestIdToDelete = Input.GetInt();
 
             var guestToDelete = dbContext.Guests.
                 First(r => r.GuestId == guestIdToDelete);
@@ -89,9 +87,7 @@ namespace HotelApp.Controllers
 
             dbContext.SaveChanges();
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadLine();
+            Input.PressAnyKey();
         }
        
     }

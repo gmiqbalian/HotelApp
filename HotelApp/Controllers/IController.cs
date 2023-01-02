@@ -12,5 +12,6 @@ namespace HotelApp.Controllers
         public void Update();
         public void Delete();
         public void ShowAll();
+        public void Search();
     }
 }

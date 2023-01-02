@@ -1,31 +1,30 @@
-﻿using Figgle;
-using HotelApp.Data;
+﻿using ClassLibrary;
+using Figgle;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HotelApp.Presentation
 {
     public class Menu
     {
-        public static void ShowMainMenu()
+        public static int ShowMainMenu()
         {
             Console.Clear();
 
             var text = FiggleFonts.Standard.Render("Hotel 4 U");
             AnsiConsole.Write(text);
 
+            //var image = new CanvasImage("hotel.png");
+            //image.MaxWidth(40);
+            //AnsiConsole.Write(image);
+
             Console.WriteLine("1. Bookings");
             Console.WriteLine("2. Rooms");
             Console.WriteLine("3. Guests");
-            Console.WriteLine("0. Exit");
+            Console.WriteLine("4. Exit");
 
-            Console.Write("\nChoose an option: ");
+            return GetSelection(1, 4);
         }
-        public static void ShowBookingMenu()
+        public static int ShowBookingMenu()
         {
             Console.Clear();
             Console.WriteLine("1. Register a new booking");
@@ -33,33 +32,34 @@ namespace HotelApp.Presentation
             Console.WriteLine("3. Edit current booking");
             Console.WriteLine("4. Delete a booking");
             Console.WriteLine("5. Search bookings");
-            
-            Console.Write("\nChoose an option: ");
+
+            return GetSelection(1, 5);
         }
-        public static void ShowRoomMenu()
+        public static int ShowRoomMenu()
         {
             Console.Clear();
             Console.WriteLine("1. Register a new room");
             Console.WriteLine("2. Show current rooms");
             Console.WriteLine("3. Edit a room");
             Console.WriteLine("4. Delete a room");
-            
-            Console.Write("\nChoose an option: ");
+
+            return GetSelection(1, 4);
         }
-        public static void ShowGuestMenu()
+        public static int ShowGuestMenu()
         {
             Console.Clear();
             Console.WriteLine("1. Register a new guest");
             Console.WriteLine("2. Show current guests");
             Console.WriteLine("3. Edit a current guest");
             Console.WriteLine("4. Delete a guest");
-            
-            Console.Write("\nChoose an option: ");
+
+            return GetSelection(1, 4);
         }
-        public static int GetSelection()
+        public static int GetSelection(int start, int end)
         {
-            int.TryParse(Console.ReadLine(), out var sel);
-            return sel;
+            Console.Write("\nChoose an option: ");
+            var sel = Input.GetInt();
+            return Input.ValidateRange(sel, start, end);
         }
     }
 }

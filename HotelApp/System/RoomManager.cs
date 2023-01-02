@@ -1,4 +1,5 @@
-﻿using ConsoleTables;
+﻿using ClassLibrary;
+using ConsoleTables;
 using HotelApp.Data;
 using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
@@ -44,15 +45,15 @@ namespace HotelApp.System
             }
         }
         public void ShowAvailableRooms()
-        {
+        {           
+
             if (_availableRooms.Count() < 1)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("\n\nSorry! All rooms are booked for these dates. Please try another date");
 
                 Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine("\nPress any key to continue");
-                Console.ReadLine();
+                Input.PressAnyKey();
                 return;
             }
             else

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Figgle;
 using Spectre.Console;
 using System.Linq.Expressions;
+using HotelApp.System;
 
 namespace HotelApp
 {
@@ -19,14 +20,12 @@ namespace HotelApp
                         
             while (true)    //add go back to main menu
             {
-                Menu.ShowMainMenu();
-                var sel = Menu.GetSelection();
-                if (sel == 0) return;
+                var mainSel = Menu.ShowMainMenu();    
+                if (mainSel == 4) return;
                
-                if (sel == 1)
-                {
-                    Menu.ShowBookingMenu();
-                    var bookingSel = Menu.GetSelection();
+                if (mainSel == 1)
+                {                    
+                    var bookingSel = Menu.ShowBookingMenu();
                     var bookingController = new BookingController(dbContext);
 
                     if (bookingSel == 1)
@@ -42,13 +41,12 @@ namespace HotelApp
                         bookingController.Delete();
 
                     else if (bookingSel == 5)
-                        bookingController.SearchBooking();
+                        bookingController.Search();
 
                 }
-                else if (sel == 2)
+                else if (mainSel == 2)
                 {
-                    Menu.ShowRoomMenu();
-                    var roomSel = Menu.GetSelection();
+                    var roomSel = Menu.ShowRoomMenu();
                     var roomController = new RoomController(dbContext);
 
                     if (roomSel == 1)
@@ -63,11 +61,9 @@ namespace HotelApp
                     else if (roomSel == 4)
                         roomController.Delete();
                 }
-                else if (sel == 3)
+                else if (mainSel == 3)
                 {
-                    Menu.ShowGuestMenu();
-
-                    var guestSel = Menu.GetSelection();
+                    var guestSel = Menu.ShowGuestMenu();
                     var guestController = new GuestController(dbContext);
 
                     if (guestSel == 1)

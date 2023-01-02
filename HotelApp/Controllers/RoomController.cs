@@ -3,6 +3,7 @@ using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
 using ConsoleTables;
 using HotelApp.System;
+using ClassLibrary;
 
 namespace HotelApp.Controllers
 {
@@ -25,10 +26,10 @@ namespace HotelApp.Controllers
             Console.WriteLine("REGISTER a new Room");
 
             Console.Write("\nEnter room type (Single/Double): ");
-            var newRoomType = Console.ReadLine();
+            var newRoomType = Input.GetString();
 
             Console.Write("\nEnter room type area in (m2): ");
-            int.TryParse(Console.ReadLine(), out var newRoomSize);
+            var newRoomSize = Input.GetInt(); ;
                         
             dbContext.Rooms.Add(new Room
             {
@@ -39,11 +40,13 @@ namespace HotelApp.Controllers
             dbContext.SaveChanges();
 
             Console.WriteLine("\nNew Room added successfully!!!");
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadLine();
+            Input.PressAnyKey();
         }
         public void ShowAll()
         {
+            Console.Clear();
+
+            Console.WriteLine("Current registered ROOMS\n");
             var table = new ConsoleTable("Number", "Type", "Beds", "Extra Bed", "Size");
             var roomsList = dbContext.Rooms.
                 Include(r => r.Type).ToList();
@@ -57,26 +60,25 @@ namespace HotelApp.Controllers
            
             table.Write();
 
-            Console.ReadLine();
-            //System.Threading.Thread.Sleep(5000);
+            Input.PressAnyKey();            
         }
         public void Update()
         {
             ShowAll();
 
-            Console.WriteLine("\nEnter room number to EDIT: ");
-            int.TryParse(Console.ReadLine(), out var roomIdToEdit);
+            Console.Write("\nEnter room number to EDIT: ");
+            var roomIdToEdit = Input.GetInt();
 
             var roomToEdit = dbContext.Rooms.
                 FirstOrDefault(r => r.RoomId == roomIdToEdit);
 
             Console.Write("\nEnter new type (Single/Double): ");
-            string roomToEditType = Console.ReadLine();
+            var roomToEditType = Input.GetString();
             
             roomToEdit.Type = _roomTypeManager.GetRoomType(roomToEditType);
             
             Console.Write("\nEnter the room size: ");
-            roomToEdit.Size = Convert.ToInt32(Console.ReadLine());
+            roomToEdit.Size = Input.GetInt(); ;
 
             dbContext.SaveChanges();
         }
@@ -84,8 +86,8 @@ namespace HotelApp.Controllers
         {
             ShowAll();
 
-            Console.WriteLine("\nEnter room number to DELETE: ");
-            int.TryParse(Console.ReadLine(), out var roomIdToDelete);
+            Console.Write("\nEnter room number to DELETE: ");
+            var roomIdToDelete = Input.GetInt();
 
             var roomToDelete = dbContext.Rooms.
                 First(r => r.RoomId == roomIdToDelete);
@@ -102,9 +104,7 @@ namespace HotelApp.Controllers
                 Console.WriteLine($"\nThe Room Number: {roomToDelete.RoomId} is deleted.");
             }
 
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadLine();
+            Input.PressAnyKey();
 
             dbContext.SaveChanges();
         }        

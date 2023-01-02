@@ -1,4 +1,5 @@
-﻿using ConsoleTables;
+﻿using ClassLibrary;
+using ConsoleTables;
 using HotelApp.Controllers;
 using HotelApp.Data;
 using HotelApp.Models;
@@ -26,13 +27,13 @@ namespace HotelApp.System
         public DateTime GetCheckInDate()
         {
             Console.WriteLine("\nHow many nights would you like to book?");
-            numberOfDays = Convert.ToInt32(Console.ReadLine());
+            numberOfDays = Input.GetInt();
 
             var checkInDate = new DateTime(2000, 01, 01);
             while (checkInDate < DateTime.Now)
             {
                 Console.WriteLine("\nEnter the check in date (Format: yyyy-mm-dd)");
-                checkInDate = Convert.ToDateTime(Console.ReadLine());
+                checkInDate = Input.GetDateTime();
             }
 
             return checkInDate;
@@ -71,7 +72,7 @@ namespace HotelApp.System
             _roomManager.ShowAvailableRooms();
 
             Console.WriteLine("\nEnter room number to choose from the available rooms:");
-            int.TryParse(Console.ReadLine(), out var roomNumber);
+            var roomNumber = Input.GetInt();
 
             var room = dbContext.Rooms.
                 Include(r=> r.Type).
@@ -87,7 +88,7 @@ namespace HotelApp.System
             if (forRoom.Type.Id == "Double")
             {
                 Console.WriteLine("\nWould you like to add extra bed? (Y/N)");
-                var sel = Console.ReadLine().Trim().ToLower();
+                var sel = Input.GetString();
 
                 if (sel == "y" && forRoom.Size <= 45)
                 {
@@ -97,17 +98,20 @@ namespace HotelApp.System
                 else if (sel == "y" && forRoom.Size > 45)
                 {
                     Console.WriteLine("\nHow many beds to add? (1 or 2)");
-                    int.TryParse(Console.ReadLine(), out var extraBeds);
-                    forRoom.ExtraBed += extraBeds;
+                    var extraBeds = Input.GetInt();
+                    forRoom.ExtraBed = extraBeds;
+                    Console.WriteLine($"\n{extraBeds} extra beds added");
                 }
             }
+
+            Input.PressAnyKey();
         }
         public Guest GetGuest()
         {
             _guestController.ShowAll();
 
             Console.WriteLine("\nEnter guest id who is booking or write \"NEW\" to add new guest");
-            var sel = Console.ReadLine();
+            var sel = Console.ReadLine().Trim();
             int guestId;
 
             if (sel.ToLower() == "new")
@@ -115,7 +119,7 @@ namespace HotelApp.System
                 _guestController.Create();
                 _guestController.ShowAll();
                 Console.WriteLine("\nEnter guest id who is booking");
-                int.TryParse(Console.ReadLine(), out guestId);
+                guestId = Input.GetInt();
             }
             else
                 int.TryParse(sel, out guestId);
@@ -139,10 +143,8 @@ namespace HotelApp.System
                 numberOfDays);
 
             table.Write();
-            Console.ForegroundColor = ConsoleColor.Gray;
 
-            Console.WriteLine("\nPress any key to continue...");
-            Console.ReadLine();
+            Input.PressAnyKey();
         }
 
     }
