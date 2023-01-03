@@ -1,39 +1,38 @@
-﻿using HotelApp.Data;
-using HotelApp.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using ClassLibrary;
 using ConsoleTables;
+using HotelApp.Data;
+using HotelApp.Models;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using HotelApp.System;
-using ClassLibrary;
 
 namespace HotelApp.Controllers
 {
-    public class RoomController
+    public class RoomController : IController
     {
         private AppDbContext dbContext { get; set; }
-        private RoomManager _roomManager;
-        private readonly RoomTypeManager _roomTypeManager;
-        
-        public RoomController(AppDbContext context)
+        private readonly IRoomManager _roomManager;       
+
+        public RoomController(AppDbContext context, IRoomManager roomManager)
         {
             dbContext = context;            
-            _roomTypeManager = new RoomTypeManager(dbContext);
-            _roomManager = new RoomManager(dbContext);
+            _roomManager = roomManager;
         }
         public void Create()
         {
             Console.Clear();
 
-            Console.WriteLine("REGISTER a new Room");
+            Console.WriteLine("\nREGISTER a new Room");
 
             Console.Write("\nEnter room type (Single/Double): ");
-            var newRoomType = Input.GetString();
+            var newRoomType = Input.GetStringWithOptions("single", "double");
 
             Console.Write("\nEnter room type area in (m2): ");
-            var newRoomSize = Input.GetInt(); ;
-                        
+            var newRoomSize = Input.GetInt();
+
             dbContext.Rooms.Add(new Room
             {
-                Type = _roomTypeManager.GetRoomType(newRoomType),
+                Type = _roomManager.GetRoomType(newRoomType),
                 Size = newRoomSize,
             });
 
@@ -46,21 +45,19 @@ namespace HotelApp.Controllers
         {
             Console.Clear();
 
-            Console.WriteLine("Current registered ROOMS\n");
+            Console.WriteLine("\nCurrent registered ROOMS\n");
             var table = new ConsoleTable("Number", "Type", "Beds", "Extra Bed", "Size");
             var roomsList = dbContext.Rooms.
                 Include(r => r.Type).ToList();
-            
-            foreach (var room in roomsList)
-                table.AddRow(room.RoomId, 
-                    room.Type.Id, 
-                    room.Type.Bed, 
-                    room.ExtraBed, 
-                    room.Size);                    
-           
-            table.Write();
 
-            Input.PressAnyKey();            
+            foreach (var room in roomsList)
+                table.AddRow(room.RoomId,
+                    room.Type.Id,
+                    room.Type.Bed,
+                    room.ExtraBed,
+                    room.Size);
+
+            table.Write();            
         }
         public void Update()
         {
@@ -73,10 +70,10 @@ namespace HotelApp.Controllers
                 FirstOrDefault(r => r.RoomId == roomIdToEdit);
 
             Console.Write("\nEnter new type (Single/Double): ");
-            var roomToEditType = Input.GetString();
-            
-            roomToEdit.Type = _roomTypeManager.GetRoomType(roomToEditType);
-            
+            var roomToEditType = Input.GetStringWithOptions("single", "double");
+
+            roomToEdit.Type = _roomManager.GetRoomType(roomToEditType);
+
             Console.Write("\nEnter the room size: ");
             roomToEdit.Size = Input.GetInt(); ;
 
@@ -107,6 +104,11 @@ namespace HotelApp.Controllers
             Input.PressAnyKey();
 
             dbContext.SaveChanges();
-        }        
+        }
+
+        public void Search()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

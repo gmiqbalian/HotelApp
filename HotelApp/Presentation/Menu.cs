@@ -13,9 +13,7 @@ namespace HotelApp.Presentation
             var text = FiggleFonts.Standard.Render("Hotel 4 U");
             AnsiConsole.Write(text);
 
-            //var image = new CanvasImage("hotel.png");
-            //image.MaxWidth(40);
-            //AnsiConsole.Write(image);
+            Console.WriteLine("\nWELCOME! to HOTEL 4 U\n");
 
             Console.WriteLine("1. Bookings");
             Console.WriteLine("2. Rooms");
@@ -27,6 +25,8 @@ namespace HotelApp.Presentation
         public static int ShowBookingMenu()
         {
             Console.Clear();
+            Console.WriteLine("\nBOOKING Menu\n\n");
+
             Console.WriteLine("1. Register a new booking");
             Console.WriteLine("2. Show current bookings");
             Console.WriteLine("3. Edit current booking");
@@ -38,6 +38,8 @@ namespace HotelApp.Presentation
         public static int ShowRoomMenu()
         {
             Console.Clear();
+            Console.WriteLine("\nROOM Menu\n\n");
+
             Console.WriteLine("1. Register a new room");
             Console.WriteLine("2. Show current rooms");
             Console.WriteLine("3. Edit a room");
@@ -48,6 +50,8 @@ namespace HotelApp.Presentation
         public static int ShowGuestMenu()
         {
             Console.Clear();
+            Console.WriteLine("\nGUEST Menu\n\n");
+
             Console.WriteLine("1. Register a new guest");
             Console.WriteLine("2. Show current guests");
             Console.WriteLine("3. Edit a current guest");

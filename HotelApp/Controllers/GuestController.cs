@@ -6,20 +6,20 @@ using HotelApp.System;
 
 namespace HotelApp.Controllers
 {
-    public class GuestController
+    public class GuestController : IController
     {
         private AppDbContext dbContext { get; set; }
-        private GuestManager _guestManager { get; set; }
-        public GuestController(AppDbContext context)
+        private readonly IGuestManager _guestManager;
+        public GuestController(AppDbContext context, IGuestManager guestManager)
         {
             dbContext = context;
-            _guestManager = new GuestManager(dbContext);
+            _guestManager = guestManager;
         }
         public void Create()
         {
             Console.Clear();
 
-            Console.WriteLine("REGISTER a new Guest");
+            Console.WriteLine("\nREGISTER a new Guest");
 
             var newGuest = new Guest();
             var guestToAdd = _guestManager.GetGuestData(newGuest);
@@ -46,8 +46,7 @@ namespace HotelApp.Controllers
                     guest.Phone, 
                     guest.Street+ " " +guest.City + " " + guest.PostalCode);
 
-            table.Write();
-            Input.PressAnyKey();
+            table.Write();            
         }
         public void Update()
         {
@@ -62,6 +61,11 @@ namespace HotelApp.Controllers
             _guestManager.GetGuestData(guestToEdit);
 
             dbContext.SaveChanges();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"\nThe Guest is udpated succesfully.");
+
+            Input.PressAnyKey();
         }
         public void Delete()
         {
@@ -89,6 +93,10 @@ namespace HotelApp.Controllers
 
             Input.PressAnyKey();
         }
-       
+
+        public void Search()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

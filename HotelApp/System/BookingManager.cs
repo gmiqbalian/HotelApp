@@ -4,25 +4,20 @@ using HotelApp.Controllers;
 using HotelApp.Data;
 using HotelApp.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HotelApp.System
 {
-    public class BookingManager
+    public class BookingManager : IBookingManager
     {
         private AppDbContext dbContext;
         private GuestController _guestController;
-        private RoomManager _roomManager;
+        private IRoomManager _roomManager;
         private int numberOfDays { get; set; }        
-        public BookingManager(AppDbContext context)
+        public BookingManager(AppDbContext context, IRoomManager roomManager)
         {
             dbContext = context;
-            _guestController = new GuestController(dbContext);
-            _roomManager = new RoomManager(dbContext);
+            _guestController = new GuestController(dbContext, new GuestManager(dbContext));
+            _roomManager = roomManager;
         }
         public DateTime GetCheckInDate()
         {
@@ -54,7 +49,7 @@ namespace HotelApp.System
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
 
-            Console.WriteLine("Your booking details");
+            Console.WriteLine("\nYour booking details");
 
             var bookingTable = new ConsoleTable("Start", "End", "No.of days");
 
@@ -64,21 +59,17 @@ namespace HotelApp.System
 
             bookingTable.Write();
             Console.ForegroundColor = ConsoleColor.Gray;
-        }
-
+        }        
         public Room GetRoom(Booking forBooking)
         {
-            _roomManager.CheckAvailableRooms(forBooking);
-            _roomManager.ShowAvailableRooms();
-
             Console.WriteLine("\nEnter room number to choose from the available rooms:");
             var roomNumber = Input.GetInt();
 
             var room = dbContext.Rooms.
-                Include(r=> r.Type).
+                Include(r => r.Type).
                 Where(r => r.RoomId == roomNumber).
                 First();
-            
+
             AskExtraBed(room);
 
             return room;
@@ -102,16 +93,15 @@ namespace HotelApp.System
                     forRoom.ExtraBed = extraBeds;
                     Console.WriteLine($"\n{extraBeds} extra beds added");
                 }
+                Input.PressAnyKey();
             }
-
-            Input.PressAnyKey();
         }
         public Guest GetGuest()
         {
             _guestController.ShowAll();
 
             Console.WriteLine("\nEnter guest id who is booking or write \"NEW\" to add new guest");
-            var sel = Console.ReadLine().Trim();
+            var sel = Console.ReadLine().ToLower().Trim();
             int guestId;
 
             if (sel.ToLower() == "new")

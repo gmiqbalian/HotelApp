@@ -12,5 +12,6 @@ namespace HotelApp.Models
         [Key]
         public string Id { get; set; }
         public int Bed { get; set; }
+        public List<Room> Rooms { get; set; } = new List<Room>();
     }
 }

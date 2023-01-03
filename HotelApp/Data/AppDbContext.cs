@@ -24,8 +24,7 @@ namespace HotelApp.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-            {
-                //change the database name before submitting                
+            {                              
                 optionsBuilder.UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Database=HotelAppDb;Trusted_Connection=True;TrustServerCertificate=true;");
             }
         }

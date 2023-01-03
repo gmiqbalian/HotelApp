@@ -10,20 +10,12 @@ using System.Threading.Tasks;
 
 namespace HotelApp.System
 {
-    public class GuestManager
+    public class GuestManager : IGuestManager
     {
         private AppDbContext dbContext { get; set; }
         public GuestManager(AppDbContext context)
         {
             dbContext = context;
-        }
-        public bool HasBookig(Guest guestToDelete)
-        {
-            if (dbContext.Bookings.
-                Include(b => b.Guest).
-                Any(b => b.Guest.GuestId == guestToDelete.GuestId))
-                return true;
-            return false;
         }
         public Guest GetGuestData(Guest guest)
         {
@@ -35,7 +27,7 @@ namespace HotelApp.System
             guest.Age = Input.GetInt();
 
             Console.Write("\nEnter Guest phone number: ");
-            guest.Phone = Input.GetString();
+            guest.Phone = Console.ReadLine();
 
             Console.Write("\nEnter Guest street address: ");
             guest.Street = Console.ReadLine();
@@ -47,6 +39,14 @@ namespace HotelApp.System
             guest.PostalCode = Input.GetInt();
 
             return guest;
+        }
+        public bool HasBookig(Guest guestToDelete)
+        {
+            if (dbContext.Bookings.
+                Include(b => b.Guest).
+                Any(b => b.Guest.GuestId == guestToDelete.GuestId))
+                return true;
+            return false;
         }
     }
 }

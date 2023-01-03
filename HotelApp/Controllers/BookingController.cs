@@ -11,35 +11,54 @@ using ClassLibrary;
 
 namespace HotelApp.Controllers
 {
-    public class BookingController
+    public class BookingController : IController
     {
         private AppDbContext dbContext { get; set; }
-        private readonly BookingManager _bookingManager;        
-        private readonly GuestController _guestController;
+        private readonly IBookingManager _bookingManager;
+        private readonly IRoomManager _roomManager;
         
-        public BookingController(AppDbContext context)
+        public BookingController(AppDbContext context, IBookingManager bookingManager, IRoomManager roomManager)
         {
             dbContext = context;
-            _bookingManager = new BookingManager(dbContext);
-            _guestController = new GuestController(dbContext);            
+            _bookingManager = bookingManager;
+            _roomManager = roomManager;
         }
         public void Create()
         {
-            Console.Clear();
-            Console.WriteLine("REGISTER a new Booking");
             var newBooking = new Booking();
+
+            Console.Clear();
+            Console.WriteLine("\nREGISTER a new Booking");
 
             newBooking.BookingDate = DateTime.Now;
             newBooking.CheckInDate = _bookingManager.GetCheckInDate();
             newBooking.CheckOutDate = _bookingManager.GetCheckOutDate(newBooking);
             _bookingManager.ShowCurrentBooking(newBooking);
-            newBooking.Room = _bookingManager.GetRoom(newBooking);
-            newBooking.Guest = _bookingManager.GetGuest();
+
+            if (_roomManager.CheckAvailableRooms(newBooking).Count() < 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n\nSorry! All rooms are booked for these dates. Please try another date");
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Input.PressAnyKey();
+                return;
+            }
+            else
+            {
+                _roomManager.ShowAvailableRooms();
+                newBooking.Room = _bookingManager.GetRoom(newBooking);
+                newBooking.Guest = _bookingManager.GetGuest();                
+            }
+
             
             dbContext.Add(newBooking);
             dbContext.SaveChanges();
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("\nBooking is created successfully!!!");
+            Console.ForegroundColor = ConsoleColor.Gray;
+
             Input.PressAnyKey();
         }
         public void ShowAll()
@@ -57,8 +76,8 @@ namespace HotelApp.Controllers
             { 
                 var table = new ConsoleTable("Id", 
                     "BookingDate", 
-                    "CheckInDate", 
-                    "CheckOutDate", 
+                    "CheckIn", 
+                    "CheckOut", 
                     "Guest", 
                     "Room",
                     "Type",
@@ -91,8 +110,22 @@ namespace HotelApp.Controllers
             bookingToUpdate.BookingDate = DateTime.Now;
             bookingToUpdate.CheckInDate = _bookingManager.GetCheckInDate();
             bookingToUpdate.CheckOutDate = _bookingManager.GetCheckOutDate(bookingToUpdate);
-            bookingToUpdate.Room = _bookingManager.GetRoom(bookingToUpdate);            
-            bookingToUpdate.Guest = _bookingManager.GetGuest();
+            _bookingManager.ShowCurrentBooking(bookingToUpdate);            
+            if (_roomManager.CheckAvailableRooms(bookingToUpdate).Count() < 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n\nSorry! All rooms are booked for these dates. Please try another date");
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Input.PressAnyKey();
+                return;
+            }
+            else
+            {
+                _roomManager.ShowAvailableRooms();
+                bookingToUpdate.Room = _bookingManager.GetRoom(bookingToUpdate);
+                bookingToUpdate.Guest = _bookingManager.GetGuest();
+            }
 
             dbContext.SaveChanges();
             
